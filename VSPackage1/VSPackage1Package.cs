@@ -3,16 +3,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
-using Microsoft.Win32;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using EnvDTE;
-using System.Windows.Forms;
 using Company.VSPackage1.Forms;
-using System.Windows.Input;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.IO;
+using Company.VSPackage1.Classes;
+using System.Windows;
 
 namespace Company.VSPackage1
 {
@@ -116,15 +114,19 @@ namespace Company.VSPackage1
             }
         }
 
-        private void AddEverything(IList<string> obj, string project_name, ProjectItem item, int level = 0)
+        private void AddEverything(Regex regex, string path, IList<FileListObject> obj, string project_name, ProjectItem item, int level = 0)
         {
             string pad = "".PadLeft(level * 4);
 
-            obj.Add(string.Format("{0} {1} => {2}", pad, project_name, item.Name));
+            if (regex.IsMatch(item.Name))
+                obj.Add(new FileListObject(path, item));
+                //obj.Add(string.Format("{0} {1} => {2}", pad, project_name, item.Name));
+
             foreach (var piobj in item.ProjectItems)
             {
                 var sub_item = piobj as ProjectItem;
-                AddEverything(obj, project_name, sub_item, level + 1);
+                var sub_path = Path.Combine(path, sub_item.Name);
+                AddEverything(regex, sub_path, obj, project_name, sub_item, level + 1);
             }
         }
 
@@ -133,7 +135,33 @@ namespace Company.VSPackage1
             var dte = GetService(typeof(DTE)) as DTE;
             if (dte != null)
             {
-                var dlg = new OpenProjectFileForm();
+                var files = new List<FileListObject>();
+
+                var regex = new Regex(@"^(\w|\s|\.)+\.\w+$", RegexOptions.IgnoreCase);
+
+                foreach (var prjobj in (Array)dte.ActiveSolutionProjects)
+                {
+                    var project = prjobj as Project;
+                    if (project != null)
+                    {
+                        foreach (var piobj in project.ProjectItems)
+                        {
+                            var item = piobj as ProjectItem;
+
+                            AddEverything(regex, "", files, project.Name, item);
+                            //files.Add(string.Format("{0} => {1} ({2})", solution.Name, item.Name, item.Kind));
+                        }
+                    }
+                }
+
+                ///////////////////////
+
+                var dlg = new OpenProjectFileForm(files);
+
+                // set the window in the center of Visual Studio
+                dlg.Top = dte.MainWindow.Top + dte.MainWindow.Height / 2 - dlg.Height / 2;
+                dlg.Left = dte.MainWindow.Left + dte.MainWindow.Width / 2 - dlg.Width / 2;
+#if _DISABLED
                 if (dte.ActiveWindow != null)
                 {
                     // center it inside of the active source editor
@@ -142,29 +170,25 @@ namespace Company.VSPackage1
                 }
                 else
                     dlg.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-
-                var files = new List<string>();
-
-                foreach (var prjobj in (Array)dte.ActiveSolutionProjects)
-                {
-                    var project = prjobj as Project;
-                    if (project != null)
-                    {
-                        Debug.WriteLine("Project: " + project.Name);
-
-                        foreach (var piobj in project.ProjectItems)
-                        {
-                            var item = piobj as ProjectItem;
-
-                            AddEverything(files, project.Name, item);
-                            //files.Add(string.Format("{0} => {1} ({2})", solution.Name, item.Name, item.Kind));
-                        }
-                    }
-                }
-
-                dlg.ValuesInProjectList = files;
+#endif
 
                 dlg.ShowDialog();
+
+                if (dlg.SelectedListObject != null)
+                {
+                    try
+                    {
+                        dlg.SelectedListObject.Item.Open();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            "Failed to open selected file.\n" + ex.Message,
+                            "Open solution file",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                    }
+                }
             }
         }
     }

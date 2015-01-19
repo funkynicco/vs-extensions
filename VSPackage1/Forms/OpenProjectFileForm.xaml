@@ -7,20 +7,73 @@
         Background="#2d2d30"
         BorderBrush="#007acc"
         BorderThickness="1">
+
+    <Window.Resources>
+        <Style x:Key="LvStyle" TargetType="{x:Type ListView}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="BorderThickness" Value="1.000001" />
+        </Style>
+
+        <Style x:Key="LvItemStyle" TargetType="{x:Type ListViewItem}">
+            <Setter Property="Margin" Value="5,0,5,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Border
+      	                    x:Name="Bd"
+      	                    Background="Transparent"
+      	                    BorderBrush="{x:Null}"
+      	                    CornerRadius="3"
+      	                    SnapsToDevicePixels="true">
+                            <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="Bd" Property="Background" Value="#4f4f56" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid Margin="5">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="5" />
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Foreground="#959595" FontFamily="Consolas" FontSize="26">Open a solution file</TextBlock>
+        <TextBlock Grid.Row="0" Foreground="#959595" FontSize="26">Open a solution file</TextBlock>
 
-        <ListBox Name="lbItems" Grid.Row="1" Foreground="#dfdfdf" Background="#252526" BorderBrush="#656565" BorderThickness="1">
-            <ListBoxItem>yourmom.cpp</ListBoxItem>
-            <ListBoxItem>hi.cpp</ListBoxItem>
-        </ListBox>
-        <TextBox Grid.Row="3" Foreground="#dfdfdf" Background="#252526" BorderBrush="#656565" BorderThickness="1">Enter filename to search for</TextBox>
+        <ListView Name="lbItems" Grid.Row="1" Foreground="#dfdfdf"
+                  Background="#252526" BorderBrush="#656565"
+                  Padding="-3,-1"
+                  Style="{StaticResource LvStyle}"
+                  SelectionMode="Single"
+                  ItemContainerStyle="{StaticResource LvItemStyle}">
+            <ListView.Resources>
+                <Style x:Key="myHeaderStyle" TargetType="{x:Type GridViewColumnHeader}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
+                                <TextBlock Background="#3f3f46" Foreground="#d0d0d0" Text="{TemplateBinding Content}" Padding="5,2" Width="{TemplateBinding Width}" TextAlignment="Left" />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.Resources>
+
+            <ListView.View>
+                <GridView ColumnHeaderContainerStyle="{StaticResource myHeaderStyle}">
+                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Path=Name}" />
+                    <GridViewColumn Header="Path" DisplayMemberBinding="{Binding Path=Path}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBox Name="txtSearch" Grid.Row="3" Foreground="#dfdfdf" Background="#252526" BorderBrush="#656565" BorderThickness="1.000001"></TextBox>
     </Grid>
 </Window>

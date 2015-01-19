@@ -125,6 +125,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\FileListObject.cs" />
     <Compile Include="Forms\OpenProjectFileForm.xaml.cs">
       <DependentUpon>OpenProjectFileForm.xaml</DependentUpon>
     </Compile>
