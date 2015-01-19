@@ -120,7 +120,6 @@ namespace Company.VSPackage1
 
             if (regex.IsMatch(item.Name))
                 obj.Add(new FileListObject(path, item));
-                //obj.Add(string.Format("{0} {1} => {2}", pad, project_name, item.Name));
 
             foreach (var piobj in item.ProjectItems)
             {
@@ -149,18 +148,21 @@ namespace Company.VSPackage1
                             var item = piobj as ProjectItem;
 
                             AddEverything(regex, "", files, project.Name, item);
-                            //files.Add(string.Format("{0} => {1} ({2})", solution.Name, item.Name, item.Kind));
                         }
                     }
                 }
+
+                files.Sort((a, b) => a.Path.CompareTo(b.Path));
 
                 ///////////////////////
 
                 var dlg = new OpenProjectFileForm(files);
 
+                dlg.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+
                 // set the window in the center of Visual Studio
-                dlg.Top = dte.MainWindow.Top + dte.MainWindow.Height / 2 - dlg.Height / 2;
-                dlg.Left = dte.MainWindow.Left + dte.MainWindow.Width / 2 - dlg.Width / 2;
+                //dlg.Top = dte.MainWindow.Top + dte.MainWindow.Height / 2 - dlg.Height / 2;
+                //dlg.Left = dte.MainWindow.Left + dte.MainWindow.Width / 2 - dlg.Width / 2;
 #if _DISABLED
                 if (dte.ActiveWindow != null)
                 {
@@ -178,7 +180,9 @@ namespace Company.VSPackage1
                 {
                     try
                     {
-                        dlg.SelectedListObject.Item.Open();
+                        dlg.SelectedListObject.Item.ExpandView();
+                        var window = dlg.SelectedListObject.Item.Open();
+                        window.Activate();
                     }
                     catch (Exception ex)
                     {
