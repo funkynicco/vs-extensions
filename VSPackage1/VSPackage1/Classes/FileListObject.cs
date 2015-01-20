@@ -13,9 +13,9 @@ namespace Company.VSPackage1.Classes
         public string Path { get; private set; }
         public ProjectItem Item { get; private set; }
 
-        public FileListObject(string path, ProjectItem item)
+        public FileListObject(string name, string path, ProjectItem item)
         {
-            Name = item.Name;
+            Name = name;
             Path = path;
             Item = item;
         }

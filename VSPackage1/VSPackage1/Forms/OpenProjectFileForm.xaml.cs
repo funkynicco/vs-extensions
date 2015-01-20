@@ -47,15 +47,27 @@ namespace Company.VSPackage1.Forms
         {
             var search = txtSearch.Text.ToLower();
 
+            int selected_index = 0;
+
             lbItems.Items.Clear();
+            int index = 0;
             foreach (var obj in _allObjects)
             {
                 if (obj.Name.ToLower().Contains(search))
+                {
                     lbItems.Items.Add(obj);
+
+                    if (obj.Name.ToLower() == search.ToLower())
+                        selected_index = index;
+
+                    ++index;
+                }
             }
 
             if (lbItems.Items.Count > 0)
-                lbItems.SelectedIndex = 0;
+            {
+                lbItems.SelectedIndex = selected_index;
+            }
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)

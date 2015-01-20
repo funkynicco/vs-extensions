@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using Company.VSPackage1.Classes;
 using System.Windows;
+using System.Text;
 
 namespace Company.VSPackage1
 {
@@ -114,18 +115,59 @@ namespace Company.VSPackage1
             }
         }
 
-        private void AddEverything(Regex regex, string path, IList<FileListObject> obj, string project_name, ProjectItem item, int level = 0)
+        private void AddEverything(string project_path, Regex regex, string path, IList<FileListObject> obj, string project_name, ProjectItem item, int level = 0)
         {
             string pad = "".PadLeft(level * 4);
 
             if (regex.IsMatch(item.Name))
-                obj.Add(new FileListObject(path, item));
+            {
+                string fullpath = null;
+                try
+                {
+                    fullpath = Path.GetDirectoryName(item.Properties.Item("FullPath").Value.ToString());
+                }
+                catch
+                {
+                    fullpath = "";
+                }
+
+                if (Path.IsPathRooted(fullpath))
+                {
+                    var temp = project_path;
+                    int backtrace_level = 0;
+
+                    while (temp.Length > 3)
+                    {
+                        if (fullpath.StartsWith(temp, StringComparison.OrdinalIgnoreCase)) // incase in same directory as the *.vcxproj)
+                        {
+                            fullpath = fullpath.Remove(0, temp.Length);
+                            while (fullpath.StartsWith("\\"))
+                                fullpath = fullpath.Remove(0, 1);
+
+                            for (int i = 0; i < backtrace_level; ++i)
+                            {
+                                fullpath = Path.Combine("..", fullpath);
+                            }
+
+                            break;
+                        }
+
+                        temp = Path.GetDirectoryName(temp); // strip away another directory
+                        ++backtrace_level;
+                    }
+                }
+                
+                if (fullpath.Length == 0)
+                    fullpath = ".";
+
+                obj.Add(new FileListObject(item.Name, fullpath, item));
+            }
 
             foreach (var piobj in item.ProjectItems)
             {
                 var sub_item = piobj as ProjectItem;
                 var sub_path = Path.Combine(path, sub_item.Name);
-                AddEverything(regex, sub_path, obj, project_name, sub_item, level + 1);
+                AddEverything(project_path, regex, sub_path, obj, project_name, sub_item, level + 1);
             }
         }
 
@@ -143,11 +185,12 @@ namespace Company.VSPackage1
                     var project = prjobj as Project;
                     if (project != null)
                     {
+                        var fullPath = Path.GetDirectoryName(project.FullName);
+
                         foreach (var piobj in project.ProjectItems)
                         {
                             var item = piobj as ProjectItem;
-
-                            AddEverything(regex, "", files, project.Name, item);
+                            AddEverything(fullPath, regex, "", files, project.Name, item);
                         }
                     }
                 }
@@ -180,7 +223,7 @@ namespace Company.VSPackage1
                 {
                     try
                     {
-                        dlg.SelectedListObject.Item.ExpandView();
+                        //dlg.SelectedListObject.Item.ExpandView(); // expands the shit inside the file (function names etc) in the solution explorer
                         var window = dlg.SelectedListObject.Item.Open();
                         window.Activate();
                     }
