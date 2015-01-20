@@ -126,10 +126,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\FileListObject.cs" />
+    <Compile Include="Configurations.cs" />
     <Compile Include="Forms\OpenProjectFileForm.xaml.cs">
       <DependentUpon>OpenProjectFileForm.xaml</DependentUpon>
     </Compile>
     <Compile Include="Guids.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

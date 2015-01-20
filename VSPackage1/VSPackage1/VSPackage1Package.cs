@@ -115,59 +115,108 @@ namespace Company.VSPackage1
             }
         }
 
-        private void AddEverything(string project_path, Regex regex, string path, IList<FileListObject> obj, string project_name, ProjectItem item, int level = 0)
+        private void AddEverything(string project_path, Regex regex, IList<FileListObject> obj, ProjectItem item, int level = 0)
         {
-            string pad = "".PadLeft(level * 4);
+            if (project_path == null ||
+                item == null ||
+                item.Name == null ||
+                regex == null ||
+                obj == null)
+                return;
 
-            if (regex.IsMatch(item.Name))
+            try
             {
-                string fullpath = null;
-                try
-                {
-                    fullpath = Path.GetDirectoryName(item.Properties.Item("FullPath").Value.ToString());
-                }
-                catch
-                {
-                    fullpath = "";
-                }
+                string pad = "".PadLeft(level * 4);
 
-                if (Path.IsPathRooted(fullpath))
+                if (regex.IsMatch(item.Name))
                 {
-                    var temp = project_path;
-                    int backtrace_level = 0;
-
-                    while (temp.Length > 3)
+                    string fullpath = "";
+                    string fullpath_unchanged = "";
+                    try
                     {
-                        if (fullpath.StartsWith(temp, StringComparison.OrdinalIgnoreCase)) // incase in same directory as the *.vcxproj)
-                        {
-                            fullpath = fullpath.Remove(0, temp.Length);
-                            while (fullpath.StartsWith("\\"))
-                                fullpath = fullpath.Remove(0, 1);
+                        fullpath = Path.GetDirectoryName(fullpath_unchanged = item.Properties.Item("FullPath").Value.ToString());
+                    }
+                    catch
+                    {
+                        fullpath = "";
+                        fullpath_unchanged = "";
+                    }
 
-                            for (int i = 0; i < backtrace_level; ++i)
+                    // safety check
+                    if (fullpath == null ||
+                        fullpath_unchanged == null)
+                    {
+                        MessageBox.Show("[FATAL ERROR] fullpath or fullpath_unchanged are null and this should never happen");
+                        return;
+                    }
+
+                    Logger.Log(LogType.Debug, "{0}=> {1}", pad, fullpath_unchanged);
+
+                    if (Path.IsPathRooted(fullpath) &&
+                        fullpath.Length > 0 &&
+                        !string.IsNullOrEmpty(project_path))
+                    {
+                        var temp = project_path;
+                        int backtrace_level = 0;
+
+                        while (temp.Length > 3)
+                        {
+                            if (fullpath.StartsWith(temp, StringComparison.OrdinalIgnoreCase)) // incase in same directory as the *.vcxproj)
                             {
-                                fullpath = Path.Combine("..", fullpath);
+                                fullpath = fullpath.Remove(0, temp.Length);
+                                while (fullpath.StartsWith("\\"))
+                                    fullpath = fullpath.Remove(0, 1);
+
+                                for (int i = 0; i < backtrace_level; ++i)
+                                {
+                                    fullpath = Path.Combine("..", fullpath);
+                                }
+
+                                break;
                             }
 
-                            break;
+                            try
+                            {
+                                temp = Path.GetDirectoryName(temp); // strip away another directory
+                            }
+                            catch
+                            {
+                                break;
+                            }
+
+                            ++backtrace_level;
                         }
-
-                        temp = Path.GetDirectoryName(temp); // strip away another directory
-                        ++backtrace_level;
                     }
+
+                    if (fullpath.Length == 0)
+                        fullpath = ".";
+
+                    obj.Add(new FileListObject(item.Name, fullpath, item));
                 }
-                
-                if (fullpath.Length == 0)
-                    fullpath = ".";
 
-                obj.Add(new FileListObject(item.Name, fullpath, item));
+                foreach (var piobj in item.ProjectItems)
+                {
+                    var sub_item = piobj as ProjectItem;
+                    if (sub_item != null)
+                        AddEverything(project_path, regex, obj, sub_item, level + 1);
+                }
             }
-
-            foreach (var piobj in item.ProjectItems)
+            catch (Exception ex)
             {
-                var sub_item = piobj as ProjectItem;
-                var sub_path = Path.Combine(path, sub_item.Name);
-                AddEverything(project_path, regex, sub_path, obj, project_name, sub_item, level + 1);
+                string param = string.Format(
+                    "project_path: '{0}', regex: '{1}', obj: '{2}', item: '{3}', level: '{4}'",
+                    project_path,
+                    regex,
+                    obj,
+                    item,
+                    level);
+
+                Logger.Log(
+                    LogType.Error,
+                    "VSPackage1Package.AddEverything -- Exception: {0}\r\nParams: {1}\r\n{2}",
+                    ex.Message,
+                    param,
+                    ex.StackTrace);
             }
         }
 
@@ -180,22 +229,45 @@ namespace Company.VSPackage1
 
                 var regex = new Regex(@"^(\w|\s|\.)+\.\w+$", RegexOptions.IgnoreCase);
 
-                foreach (var prjobj in (Array)dte.ActiveSolutionProjects)
+                try
                 {
-                    var project = prjobj as Project;
-                    if (project != null)
+                    foreach (var prjobj in dte.Solution.Projects)
                     {
-                        var fullPath = Path.GetDirectoryName(project.FullName);
-
-                        foreach (var piobj in project.ProjectItems)
+                        var project = prjobj as Project;
+                        if (project != null)
                         {
-                            var item = piobj as ProjectItem;
-                            AddEverything(fullPath, regex, "", files, project.Name, item);
+                            string fullpath = "";
+
+                            try
+                            {
+                                fullpath = Path.GetDirectoryName(project.FullName);
+                                Logger.Log(LogType.Debug, "Project: {0}", project.FullName);
+                            }
+                            catch
+                            {
+                                Logger.Log(LogType.Debug, "Project FullName empty: {0}", project.Name);
+                            }
+
+                            foreach (var piobj in project.ProjectItems)
+                            {
+                                var item = piobj as ProjectItem;
+                                if (item != null)
+                                    AddEverything(fullpath, regex, files, item);
+                            }
                         }
                     }
-                }
 
-                files.Sort((a, b) => a.Path.CompareTo(b.Path));
+                    files.Sort((a, b) => a.Path.CompareTo(b.Path));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Exception: " + ex.Message + "\n" + ex.StackTrace,
+                        "Exception",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return;
+                }
 
                 ///////////////////////
 
