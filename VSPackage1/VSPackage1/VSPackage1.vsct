@@ -86,6 +86,26 @@
           <ButtonText>Move 5 Lines Down</ButtonText>
         </Strings>
       </Button>
+
+      <!-- New CTRL + Shift + Up / Down -->
+      
+      <Button guid="guidVSPackage1CmdSet" id="cmdidMove5LinesUpSelect" priority="0x0104" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+        <Icon guid="guidImages" id="bmpPic1" />
+        <Strings>
+          <ButtonText>Select 5 Lines Up</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidVSPackage1CmdSet" id="cmdidMove5LinesDownSelect" priority="0x0105" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+        <Icon guid="guidImages" id="bmpPic1" />
+        <Strings>
+          <ButtonText>Select 5 Lines Down</ButtonText>
+        </Strings>
+      </Button>
+
+      <!-- End -->
       
       <Button guid="guidVSPackage1CmdSet" id="cmdidOpenSolutionFile" priority="0x0102" type="Button">
         <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
@@ -126,6 +146,8 @@
       <IDSymbol name="cmdidMyCommand2" value="0x0101" />
       <IDSymbol name="TopLevelMenu" value="0x0102"/>
       <IDSymbol name="cmdidOpenSolutionFile" value="0x0103" />
+      <IDSymbol name="cmdidMove5LinesUpSelect" value="0x0104" />
+      <IDSymbol name="cmdidMove5LinesDownSelect" value="0x0105" />
     </GuidSymbol>
     
     

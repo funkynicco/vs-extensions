@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="110" xml:space="preserve">
-    <value>Multi Line Jumper V2.0</value>
+    <value>Multi Line Jumper V2.1</value>
   </data>
   <data name="112" xml:space="preserve">
     <value>Bindable feature to move 5 lines up or down with for example CTRL+Up and CTRL+Down</value>

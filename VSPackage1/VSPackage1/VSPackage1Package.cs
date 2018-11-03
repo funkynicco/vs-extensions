@@ -76,6 +76,18 @@ namespace Company.VSPackage1
                 menuItem = new MenuCommand(MenuItem_MoveLinesDown, menuCommandID);
                 mcs.AddCommand(menuItem);
 
+                //////////
+
+                menuCommandID = new CommandID(GuidList.guidVSPackage1CmdSet, (int)PkgCmdIDList.cmdidMove5LinesUpSelect);
+                menuItem = new MenuCommand(MenuItem_MoveLinesUpWithSelect, menuCommandID);
+                mcs.AddCommand(menuItem);
+
+                menuCommandID = new CommandID(GuidList.guidVSPackage1CmdSet, (int)PkgCmdIDList.cmdidMove5LinesDownSelect);
+                menuItem = new MenuCommand(MenuItem_MoveLinesDownWithSelect, menuCommandID);
+                mcs.AddCommand(menuItem);
+
+                ///////////
+
                 menuCommandID = new CommandID(GuidList.guidVSPackage1CmdSet, (int)PkgCmdIDList.cmdidOpenSolutionFile);
                 menuItem = new MenuCommand(MenuItem_OpenSolutionFile, menuCommandID);
                 mcs.AddCommand(menuItem);
@@ -100,6 +112,21 @@ namespace Company.VSPackage1
             }
         }
 
+        private void MenuItem_MoveLinesUpWithSelect(object sender, EventArgs e)
+        {
+            var dte = GetService(typeof(DTE)) as DTE;
+            if (dte != null)
+            {
+                var doc = dte.ActiveDocument;
+                if (doc != null)
+                {
+                    var txt = doc.Object() as TextDocument;
+
+                    txt.Selection.LineUp(true, 5);
+                }
+            }
+        }
+
         private void MenuItem_MoveLinesDown(object sender, EventArgs e)
         {
             var dte = GetService(typeof(DTE)) as DTE;
@@ -111,6 +138,21 @@ namespace Company.VSPackage1
                     var txt = doc.Object() as TextDocument;
 
                     txt.Selection.LineDown(false, 5);
+                }
+            }
+        }
+
+        private void MenuItem_MoveLinesDownWithSelect(object sender, EventArgs e)
+        {
+            var dte = GetService(typeof(DTE)) as DTE;
+            if (dte != null)
+            {
+                var doc = dte.ActiveDocument;
+                if (doc != null)
+                {
+                    var txt = doc.Object() as TextDocument;
+
+                    txt.Selection.LineDown(true, 5);
                 }
             }
         }

@@ -11,5 +11,9 @@ namespace Company.VSPackage1
         public const uint TopLevelMenu = 0x102;
 
         public const uint cmdidOpenSolutionFile = 0x103;
+
+        // move 5 lines up and down with select
+        public const uint cmdidMove5LinesUpSelect = 0x104;
+        public const uint cmdidMove5LinesDownSelect = 0x105;
     };
 }
