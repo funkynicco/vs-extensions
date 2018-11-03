@@ -1,17 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSPackage1", "VSPackage1\VSPackage1.csproj", "{592464FB-FB13-4D50-839F-E51FDBDDA549}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSPackage1_IntegrationTests", "VSPackage1\VSPackage1_IntegrationTests\VSPackage1_IntegrationTests.csproj", "{7B48A364-31A1-4718-AA86-E1776A167AA8}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EE71B5C0-9F57-4FC1-B141-0956A16FBFCA}"
 	ProjectSection(SolutionItems) = preProject
 		IntegrationTests.testsettings = IntegrationTests.testsettings
 		UnitTests.testsettings = UnitTests.testsettings
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSPackage1", "VSPackage1\VSPackage1.csproj", "{592464FB-FB13-4D50-839F-E51FDBDDA549}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSPackage1_IntegrationTests", "VSPackage1\VSPackage1_IntegrationTests\VSPackage1_IntegrationTests.csproj", "{7B48A364-31A1-4718-AA86-E1776A167AA8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSPackage1_UnitTests", "VSPackage1\VSPackage1_UnitTests\VSPackage1_UnitTests.csproj", "{291896A2-3033-4D5B-A682-892714BEE4BC}"
 EndProject

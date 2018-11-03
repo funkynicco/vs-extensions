@@ -4,3 +4,7 @@ obj/
 
 *.user
 *.suo
+
+Backup*/
+
+UpgradeLog*.htm
